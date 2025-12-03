@@ -1,11 +1,123 @@
 @import "tailwindcss";
 
-:root {
-  --background: #121212;
-  --foreground: #ffffff;
+@plugin "tailwindcss-animate";
+
+@theme inline {
+  /* Remove all border radius for neubrutalism */
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+
+  /* Spotify Brand Colors */
+  --color-spotify-green: #1DB954;
+  --color-accent-yellow: #FFD600;
+  --color-accent-pink: #FF006E;
+  --color-accent-blue: #00D9FF;
+  --color-accent-purple: #8B5CF6;
 }
 
+:root {
+  --spotify-green: #1DB954;
+  --accent-yellow: #FFD600;
+  --accent-pink: #FF006E;
+  --accent-blue: #00D9FF;
+  --accent-purple: #8B5CF6;
+}
+
+/* Neubrutalist Component Classes */
+.neu-card {
+  background: white;
+  border: 4px solid black !important;
+  box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 1) !important;
+  border-radius: 0 !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.neu-card:hover {
+  box-shadow: 12px 12px 0px 0px rgba(0, 0, 0, 1) !important;
+  transform: translate(-2px, -2px);
+}
+
+.neu-btn {
+  border: 4px solid black !important;
+  box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1) !important;
+  border-radius: 0 !important;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  font-weight: 800 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.neu-btn:hover {
+  box-shadow: 6px 6px 0px 0px rgba(0, 0, 0, 1) !important;
+  transform: translate(-1px, -1px);
+}
+
+.neu-btn:active {
+  box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1) !important;
+  transform: translate(1px, 1px);
+}
+
+/* Spotify Brand Color Utilities */
+.bg-spotify-green {
+  background-color: var(--spotify-green);
+}
+
+.bg-accent-yellow {
+  background-color: var(--accent-yellow);
+}
+
+.bg-accent-pink {
+  background-color: var(--accent-pink);
+}
+
+.bg-accent-blue {
+  background-color: var(--accent-blue);
+}
+
+.bg-accent-purple {
+  background-color: var(--accent-purple);
+}
+
+.text-spotify-green {
+  color: var(--spotify-green);
+}
+
+.text-accent-yellow {
+  color: var(--accent-yellow);
+}
+
+.text-accent-pink {
+  color: var(--accent-pink);
+}
+
+.text-accent-blue {
+  color: var(--accent-blue);
+}
+
+.text-accent-purple {
+  color: var(--accent-purple);
+}
+
+.border-spotify-green {
+  border-color: var(--spotify-green);
+}
+
+/* Base Styles */
 body {
-  background: var(--background);
-  color: var(--foreground);
+  font-family: system-ui, -apple-system, sans-serif;
+  font-feature-settings: "rlig" 1, "calt" 1;
+  background-color: white;
+  color: black;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 900;
+  letter-spacing: -0.025em;
 }

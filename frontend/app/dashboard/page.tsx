@@ -2,244 +2,257 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { auth, user } from "@/lib/api";
-import Link from "next/link";
-
-interface UserProfile {
-  id: string;
-  display_name: string;
-  email: string;
-  country: string;
-  images: Array<{ url: string }>;
-}
+import api from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface Track {
   id: string;
   name: string;
-  artists: Array<{ name: string }>;
+  artists: { name: string }[];
   album: {
-    name: string;
-    images: Array<{ url: string }>;
+    images: { url: string }[];
+  };
+  external_urls: {
+    spotify: string;
   };
 }
 
 interface Artist {
   id: string;
   name: string;
+  images: { url: string }[];
+  external_urls: {
+    spotify: string;
+  };
   genres: string[];
-  images: Array<{ url: string }>;
 }
 
-export default function DashboardPage() {
+export default function Dashboard() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [topTracks, setTopTracks] = useState<Track[]>([]);
-  const [topArtists, setTopArtists] = useState<Artist[]>([]);
   const [timeRange, setTimeRange] = useState<
     "short_term" | "medium_term" | "long_term"
   >("medium_term");
+  const [topTracks, setTopTracks] = useState<Track[]>([]);
+  const [topArtists, setTopArtists] = useState<Artist[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadUserData();
+    checkAuthAndLoadData();
   }, []);
 
   useEffect(() => {
-    if (profile) {
+    if (!loading) {
       loadTopData();
     }
-  }, [timeRange, profile]);
+  }, [timeRange]);
 
-  async function loadUserData() {
+  const checkAuthAndLoadData = async () => {
     try {
-      // Check auth
-      const authStatus = await auth.checkAuth();
-      if (!authStatus.authenticated) {
+      console.log("Checking authentication...");
+      const authResponse = await api.auth.checkAuth();
+      console.log("Auth response:", authResponse);
+
+      if (!authResponse.authenticated) {
+        console.log("Not authenticated, redirecting to login");
         router.push("/auth/login");
         return;
       }
 
-      // Load profile
-      const profileData = await auth.getCurrentUser();
-      setProfile(profileData);
-
-      // Load top tracks and artists
+      console.log("Authenticated, loading top data");
       await loadTopData();
-    } catch (error) {
-      console.error("Error loading user data:", error);
+    } catch (err) {
+      console.error("Auth check error:", err);
+      setError("Failed to authenticate");
       router.push("/auth/login");
-    } finally {
+    }
+  };
+
+  const loadTopData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      console.log(`Loading top tracks for time range: ${timeRange}`);
+      const tracksResponse = await api.user.getTopTracks({
+        limit: 10,
+        time_range: timeRange,
+      });
+      console.log("Tracks response:", tracksResponse);
+      // Backend returns {success: true, data: [...]}
+      setTopTracks(tracksResponse?.data || tracksResponse?.items || []);
+
+      console.log(`Loading top artists for time range: ${timeRange}`);
+      const artistsResponse = await api.user.getTopArtists({
+        limit: 10,
+        time_range: timeRange,
+      });
+      console.log("Artists response:", artistsResponse);
+      // Backend returns {success: true, data: [...]}
+      setTopArtists(artistsResponse?.data || artistsResponse?.items || []);
+
+      setLoading(false);
+    } catch (err) {
+      console.error("Error loading data:", err);
+      setError("Failed to load data");
       setLoading(false);
     }
-  }
+  };
 
-  async function loadTopData() {
-    try {
-      const [tracksData, artistsData] = await Promise.all([
-        user.getTopTracks({ time_range: timeRange, limit: 5 }),
-        user.getTopArtists({ time_range: timeRange, limit: 5 }),
-      ]);
-
-      setTopTracks(tracksData.items || []);
-      setTopArtists(artistsData.items || []);
-    } catch (error) {
-      console.error("Error loading top data:", error);
-    }
-  }
-
-  async function handleLogout() {
-    try {
-      await auth.logout();
-      router.push("/");
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  }
+  const timeRangeLabels = {
+    short_term: "LAST 4 WEEKS",
+    medium_term: "LAST 6 MONTHS",
+    long_term: "ALL TIME",
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-base-100">
-        <div className="text-center">
-          <div className="loading loading-spinner loading-lg text-primary"></div>
-          <p className="mt-4 text-lg">Loading your stats...</p>
-        </div>
+      <div className="min-h-screen bg-accent-yellow flex items-center justify-center p-4">
+        <Card className="neu-card bg-white border-[6px]">
+          <CardContent className="p-12 text-center">
+            <div className="text-6xl mb-4">⏳</div>
+            <p className="text-2xl font-black">LOADING YOUR STATS...</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  const timeRangeLabels = {
-    short_term: "Last 4 Weeks",
-    medium_term: "Last 6 Months",
-    long_term: "All Time",
-  };
+  if (error) {
+    return (
+      <div className="min-h-screen bg-accent-pink flex items-center justify-center p-4">
+        <Card className="neu-card bg-white border-[6px] max-w-md">
+          <CardContent className="p-8 text-center">
+            <div className="text-6xl mb-4">⚠️</div>
+            <p className="text-2xl font-black text-red-600">{error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-base-100">
-      {/* Navigation */}
-      <div className="navbar bg-base-300 shadow-lg">
-        <div className="flex-1">
-          <Link href="/" className="btn btn-ghost text-xl">
-            🎵 Early Wrapped
-          </Link>
+    <div className="min-h-screen bg-accent-yellow p-4 md:p-8">
+      <div className="container mx-auto max-w-7xl">
+        <div className="mb-8">
+          <div className="inline-block transform -rotate-1 mb-6">
+            <h1 className="text-4xl md:text-6xl font-black bg-spotify-green text-white px-8 py-4 border-[6px] border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              🎵 YOUR MUSIC STATS
+            </h1>
+          </div>
+
+          {/* Time Range Selector */}
+          <div className="flex flex-wrap gap-4 mb-6">
+            {(["short_term", "medium_term", "long_term"] as const).map(
+              (range) => (
+                <Button
+                  key={range}
+                  onClick={() => setTimeRange(range)}
+                  variant={timeRange === range ? "default" : "outline"}
+                  className={`neu-btn font-black text-lg ${
+                    timeRange === range
+                      ? "bg-spotify-green hover:bg-spotify-green text-white"
+                      : "bg-white hover:bg-white text-black"
+                  }`}
+                >
+                  {timeRangeLabels[range]}
+                </Button>
+              )
+            )}
+          </div>
         </div>
-        <div className="flex-none gap-2">
-          <div className="dropdown dropdown-end">
-            <label tabIndex={0} className="btn btn-ghost btn-circle avatar">
-              <div className="w-10 rounded-full">
-                {profile?.images?.[0]?.url ? (
-                  <img src={profile.images[0].url} alt={profile.display_name} />
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+          {/* Top Tracks */}
+          <Card className="neu-card bg-white border-4 transform -rotate-1">
+            <CardHeader>
+              <CardTitle className="text-3xl md:text-4xl font-black">
+                TOP TRACKS 📀
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {topTracks && topTracks.length > 0 ? (
+                  topTracks.map((track, index) => (
+                    <a
+                      key={track.id}
+                      href={track.external_urls.spotify}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-4 p-4 bg-accent-blue border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+                    >
+                      <div className="text-2xl font-black w-8 shrink-0">
+                        {index + 1}
+                      </div>
+                      <img
+                        src={track.album.images[0]?.url}
+                        alt={track.name}
+                        className="w-16 h-16 border-[3px] border-black shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-black truncate text-lg">
+                          {track.name}
+                        </div>
+                        <div className="font-bold text-sm truncate opacity-80">
+                          {track.artists.map((a) => a.name).join(", ")}
+                        </div>
+                      </div>
+                    </a>
+                  ))
                 ) : (
-                  <div className="bg-primary flex items-center justify-center h-full">
-                    {profile?.display_name?.[0] || "?"}
-                  </div>
+                  <p className="text-center py-8 text-lg font-bold">
+                    No tracks found
+                  </p>
                 )}
               </div>
-            </label>
-            <ul
-              tabIndex={0}
-              className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-300 rounded-box w-52"
-            >
-              <li className="menu-title">
-                <span>{profile?.display_name}</span>
-              </li>
-              <li>
-                <button onClick={handleLogout} className="text-error">
-                  Logout
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto p-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">
-            Welcome back, {profile?.display_name}! 👋
-          </h1>
-          <p className="text-gray-400">Here's what you've been listening to</p>
-        </div>
-
-        {/* Time Range Selector */}
-        <div className="tabs tabs-boxed mb-8 bg-base-300 w-fit">
-          {(
-            Object.keys(timeRangeLabels) as Array<keyof typeof timeRangeLabels>
-          ).map((range) => (
-            <button
-              key={range}
-              className={`tab ${timeRange === range ? "tab-active" : ""}`}
-              onClick={() => setTimeRange(range)}
-            >
-              {timeRangeLabels[range]}
-            </button>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Top Tracks */}
-          <div className="card bg-base-300 shadow-xl">
-            <div className="card-body">
-              <h2 className="card-title text-2xl mb-4">🎵 Your Top Tracks</h2>
-              <div className="space-y-4">
-                {topTracks.map((track, index) => (
-                  <div
-                    key={track.id}
-                    className="flex items-center gap-4 p-3 bg-base-100 rounded-lg hover:bg-base-200 transition"
-                  >
-                    <span className="text-2xl font-bold text-primary w-8">
-                      {index + 1}
-                    </span>
-                    {track.album.images[0] && (
-                      <img
-                        src={track.album.images[0].url}
-                        alt={track.name}
-                        className="w-16 h-16 rounded"
-                      />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold truncate">{track.name}</p>
-                      <p className="text-sm text-gray-400 truncate">
-                        {track.artists.map((a) => a.name).join(", ")}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Top Artists */}
-          <div className="card bg-base-300 shadow-xl">
-            <div className="card-body">
-              <h2 className="card-title text-2xl mb-4">🎤 Your Top Artists</h2>
-              <div className="space-y-4">
-                {topArtists.map((artist, index) => (
-                  <div
-                    key={artist.id}
-                    className="flex items-center gap-4 p-3 bg-base-100 rounded-lg hover:bg-base-200 transition"
-                  >
-                    <span className="text-2xl font-bold text-primary w-8">
-                      {index + 1}
-                    </span>
-                    {artist.images[0] && (
+          <Card className="neu-card bg-white border-4 transform rotate-1">
+            <CardHeader>
+              <CardTitle className="text-3xl md:text-4xl font-black">
+                TOP ARTISTS 🎤
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {topArtists && topArtists.length > 0 ? (
+                  topArtists.map((artist, index) => (
+                    <a
+                      key={artist.id}
+                      href={artist.external_urls.spotify}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-4 p-4 bg-accent-purple border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+                    >
+                      <div className="text-2xl font-black text-white w-8 shrink-0">
+                        {index + 1}
+                      </div>
                       <img
-                        src={artist.images[0].url}
+                        src={artist.images[0]?.url}
                         alt={artist.name}
-                        className="w-16 h-16 rounded-full"
+                        className="w-16 h-16 border-[3px] border-black shrink-0"
                       />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold truncate">{artist.name}</p>
-                      <p className="text-sm text-gray-400 truncate">
-                        {artist.genres.slice(0, 3).join(", ")}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-black text-white truncate text-lg">
+                          {artist.name}
+                        </div>
+                        <div className="font-bold text-sm text-white truncate opacity-80">
+                          {artist.genres.slice(0, 3).join(", ")}
+                        </div>
+                      </div>
+                    </a>
+                  ))
+                ) : (
+                  <p className="text-center py-8 text-lg font-bold text-white">
+                    No artists found
+                  </p>
+                )}
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
