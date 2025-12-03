@@ -4,7 +4,7 @@ Spotify Service - Handles all interactions with Spotify Web API
 
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
@@ -66,7 +66,7 @@ class SpotifyService:
         return auth_manager.get_authorize_url()
 
     @staticmethod
-    def get_access_token(code: str) -> Dict[str, Any]:
+    def get_access_token(code: str) -> dict[str, Any]:
         """
         Exchange authorization code for access token
 
@@ -81,7 +81,7 @@ class SpotifyService:
         return token_info
 
     @staticmethod
-    def refresh_access_token(refresh_token: str) -> Dict[str, Any]:
+    def refresh_access_token(refresh_token: str) -> dict[str, Any]:
         """
         Refresh an expired access token
 
@@ -95,7 +95,7 @@ class SpotifyService:
         token_info = auth_manager.refresh_access_token(refresh_token)
         return token_info
 
-    def get_current_user(self) -> Dict[str, Any]:
+    def get_current_user(self) -> dict[str, Any]:
         """
         Get current user's profile information
 
@@ -114,7 +114,7 @@ class SpotifyService:
 
     def get_top_tracks(
         self, time_range: str = "medium_term", limit: int = 50, offset: int = 0
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get user's top tracks
 
@@ -140,7 +140,7 @@ class SpotifyService:
 
     def get_top_artists(
         self, time_range: str = "medium_term", limit: int = 50, offset: int = 0
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get user's top artists
 
@@ -166,7 +166,7 @@ class SpotifyService:
 
     def get_recently_played(
         self, limit: int = 50, after: Optional[int] = None, before: Optional[int] = None
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get user's recently played tracks
 
@@ -190,7 +190,7 @@ class SpotifyService:
             logger.error(f"Error fetching recently played tracks: {e}")
             raise
 
-    def get_audio_features(self, track_ids: List[str]) -> List[Dict[str, Any]]:
+    def get_audio_features(self, track_ids: list[str]) -> list[dict[str, Any]]:
         """
         Get audio features for multiple tracks
 
@@ -211,7 +211,7 @@ class SpotifyService:
             logger.error(f"Error fetching audio features: {e}")
             raise
 
-    def get_saved_tracks(self, limit: int = 50, offset: int = 0) -> Dict[str, Any]:
+    def get_saved_tracks(self, limit: int = 50, offset: int = 0) -> dict[str, Any]:
         """
         Get user's saved tracks (liked songs)
 
@@ -232,7 +232,7 @@ class SpotifyService:
             logger.error(f"Error fetching saved tracks: {e}")
             raise
 
-    def get_user_playlists(self, limit: int = 50, offset: int = 0) -> Dict[str, Any]:
+    def get_user_playlists(self, limit: int = 50, offset: int = 0) -> dict[str, Any]:
         """
         Get user's playlists
 
@@ -253,7 +253,7 @@ class SpotifyService:
             logger.error(f"Error fetching user playlists: {e}")
             raise
 
-    def get_track(self, track_id: str) -> Dict[str, Any]:
+    def get_track(self, track_id: str) -> dict[str, Any]:
         """
         Get a specific track by ID
 
@@ -273,7 +273,7 @@ class SpotifyService:
             logger.error(f"Error fetching track: {e}")
             raise
 
-    def get_artist(self, artist_id: str) -> Dict[str, Any]:
+    def get_artist(self, artist_id: str) -> dict[str, Any]:
         """
         Get a specific artist by ID
 

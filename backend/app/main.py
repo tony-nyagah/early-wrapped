@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from pathlib import Path
 
 from app.api import user as user_router
 from app.auth import router as auth_router
@@ -14,12 +16,20 @@ app = FastAPI(
 )
 
 # Configure CORS
+# Allow frontend origins plus Spotify authorization server
+cors_origins = settings.cors_origins + [
+    "https://accounts.spotify.com",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 
@@ -42,6 +52,13 @@ async def root():
 async def health_check():
     """Health check endpoint"""
     return {"status": "ok"}
+
+
+@app.get("/test")
+async def test_page():
+    """Serve test login page"""
+    test_file = Path(__file__).parent.parent / "test_login.html"
+    return FileResponse(test_file)
 
 
 # Include routers

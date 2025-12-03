@@ -19,13 +19,15 @@ Early Wrapped is a web application that analyzes your Spotify listening history 
 ## 🛠️ Tech Stack
 
 **Backend:**
-- Python 3.9+
+
+- Python 3.13 (managed via uv)
 - FastAPI
 - Spotify Web API
 - SQLite/PostgreSQL
 - pandas for data analysis
 
 **Frontend:**
+
 - Next.js 14
 - React 18
 - TypeScript
@@ -34,8 +36,7 @@ Early Wrapped is a web application that analyzes your Spotify listening history 
 
 ## 📋 Prerequisites
 
-- Python 3.9 or higher
-- [uv](https://github.com/astral-sh/uv) - Fast Python package installer
+- [uv](https://github.com/astral-sh/uv) - Fast Python package installer (will install Python 3.13 automatically)
 - [Bun](https://bun.sh) - Fast JavaScript runtime and package manager
 - Spotify account (Free or Premium)
 - Spotify Developer App credentials
@@ -54,15 +55,19 @@ cd early-wrapped
 1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
 2. Create a new app
 3. Note your **Client ID** and **Client Secret**
-4. Add `http://localhost:8000/auth/callback` to Redirect URIs
+4. Add `http://127.0.0.1:8000/auth/callback` to Redirect URIs
 
 ### 3. Backend Setup
 
 ```bash
 cd backend
-uv venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-uv pip install -r requirements.txt
+
+# Install Python 3.13 (if not already installed)
+uv python install 3.13
+
+# Create virtual environment and install dependencies
+uv venv --python 3.13
+uv sync
 ```
 
 Create a `.env` file in the `backend` directory:
@@ -70,7 +75,7 @@ Create a `.env` file in the `backend` directory:
 ```env
 SPOTIFY_CLIENT_ID=your_client_id_here
 SPOTIFY_CLIENT_SECRET=your_client_secret_here
-SPOTIFY_REDIRECT_URI=http://localhost:8000/auth/callback
+SPOTIFY_REDIRECT_URI=http://127.0.0.1:8000/auth/callback
 SECRET_KEY=your_secret_key_here
 ```
 
@@ -147,18 +152,21 @@ early-wrapped/
 ## 📊 API Endpoints
 
 ### Authentication
+
 - `GET /auth/login` - Initiate Spotify OAuth flow
 - `GET /auth/callback` - OAuth callback handler
 - `POST /auth/refresh` - Refresh access token
 - `POST /auth/logout` - Logout user
 
 ### User Data
+
 - `GET /api/user/profile` - Get user profile
 - `GET /api/user/top-tracks` - Get top tracks
 - `GET /api/user/top-artists` - Get top artists
 - `GET /api/user/recently-played` - Get recently played tracks
 
 ### Analytics
+
 - `GET /api/analytics/summary` - Get complete analytics summary
 - `GET /api/analytics/genres` - Get genre breakdown
 - `GET /api/analytics/insights` - Get personalized insights

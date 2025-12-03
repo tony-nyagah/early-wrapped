@@ -24,6 +24,7 @@ curl http://localhost:8000
 ```
 
 Expected response:
+
 ```json
 {
   "message": "Welcome to Early Wrapped API",
@@ -44,6 +45,7 @@ curl http://localhost:8000/auth/check
 ```
 
 Expected response (not authenticated):
+
 ```json
 {
   "authenticated": false,
@@ -61,6 +63,7 @@ Expected response (not authenticated):
 4. You'll be redirected back to: http://localhost:3000/auth/success
 
 **Using curl:**
+
 ```bash
 # This will return a redirect URL
 curl -I http://localhost:8000/auth/login
@@ -69,6 +72,7 @@ curl -I http://localhost:8000/auth/login
 ### 4. Check Authentication After Login
 
 Open browser console and check cookies:
+
 - `spotify_access_token` (httponly)
 - `spotify_refresh_token` (httponly)
 - `user_profile`
@@ -80,6 +84,7 @@ curl -b cookies.txt http://localhost:8000/auth/me
 ```
 
 Or in browser (after login):
+
 ```
 http://localhost:8000/auth/me
 ```
@@ -97,16 +102,19 @@ curl -b cookies.txt http://localhost:8000/api/user/profile
 ### Get Top Tracks
 
 **Short term (last 4 weeks):**
+
 ```bash
 curl "http://localhost:8000/api/user/top-tracks?time_range=short_term&limit=10"
 ```
 
 **Medium term (last 6 months):**
+
 ```bash
 curl "http://localhost:8000/api/user/top-tracks?time_range=medium_term&limit=20"
 ```
 
 **Long term (all time):**
+
 ```bash
 curl "http://localhost:8000/api/user/top-tracks?time_range=long_term&limit=50"
 ```
@@ -229,11 +237,13 @@ The easiest way to test the API is using the built-in Swagger UI:
 ## Query Parameters
 
 ### Time Range Options
+
 - `short_term` - Last 4 weeks
 - `medium_term` - Last 6 months (default)
 - `long_term` - All time
 
 ### Pagination
+
 - `limit` - Number of items to return (1-50, default 20)
 - `offset` - Starting position (default 0)
 
@@ -304,7 +314,7 @@ curl -X POST http://localhost:8000/auth/logout
 ### "Invalid credentials" error
 
 - Check `backend/.env` has correct Spotify credentials
-- Verify redirect URI matches: `http://localhost:8000/auth/callback`
+- Verify redirect URI matches: `http://127.0.0.1:8000/auth/callback`
 - Check Spotify Dashboard settings
 
 ### "Address already in use" error

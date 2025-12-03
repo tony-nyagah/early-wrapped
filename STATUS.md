@@ -9,6 +9,7 @@
 ## ✅ Completed
 
 ### Phase 1.1: Project Setup ✓
+
 - [x] Project structure initialized
 - [x] Backend (Python/FastAPI) scaffolded
 - [x] Frontend (Next.js 14 + TypeScript) scaffolded
@@ -22,12 +23,14 @@
 - [x] Git repository initialized with comprehensive .gitignore
 
 ### Phase 1.3: Backend FastAPI Setup ✓
+
 - [x] Complete directory structure (auth, api, services, schemas, models, utils)
-- [x] All module __init__ files created
+- [x] All module **init** files created
 - [x] Routers integrated into main.py
 - [x] Server tested and working
 
 ### Phase 1.4: Backend Spotify Authentication ✓
+
 - [x] Full OAuth 2.0 flow implemented
 - [x] SpotifyService class with auth methods
 - [x] 6 authentication endpoints created
@@ -36,12 +39,14 @@
 - [x] Pydantic schemas for validation
 
 ### Phase 1.5: Backend Data Fetching ✓
+
 - [x] Comprehensive SpotifyService (10+ methods)
 - [x] 9 user data endpoints created
 - [x] Error handling and validation
 - [x] Query parameters for pagination/filtering
 
 **Complete Backend Structure:**
+
 ```
 backend/app/
 ├── api/
@@ -76,11 +81,13 @@ Documentation:
 ## 🔄 Currently Working On
 
 ### Phase 1.2: Spotify Developer Setup
+
 **USER ACTION REQUIRED:**
+
 1. ⚠️ Create Spotify Developer account
 2. ⚠️ Register application in Spotify Dashboard
 3. ⚠️ Obtain Client ID and Client Secret
-4. ⚠️ Configure redirect URIs: `http://localhost:8000/auth/callback`
+4. ⚠️ Configure redirect URIs: `http://127.0.0.1:8000/auth/callback`
 5. ⚠️ Add credentials to `backend/.env`
 
 **Instructions**: See [GETTING_STARTED.md](./GETTING_STARTED.md#step-1-spotify-developer-setup)
@@ -92,6 +99,7 @@ Documentation:
 ## 📋 Up Next
 
 ### Phase 1.6: Frontend - Next.js Setup
+
 - [ ] Create landing page with UI
 - [ ] Add Tailwind styling
 - [ ] Create component library (buttons, cards, etc.)
@@ -99,6 +107,7 @@ Documentation:
 - [ ] Create layout components
 
 ### Phase 1.7: Frontend - Authentication Flow
+
 - [ ] Create login page with "Login with Spotify" button
 - [ ] Handle OAuth redirect from backend
 - [ ] Create auth success/error pages
@@ -107,6 +116,7 @@ Documentation:
 - [ ] Add logout functionality
 
 ### Phase 1.8: Frontend - Basic Dashboard
+
 - [ ] Create dashboard layout
 - [ ] Display user profile with avatar
 - [ ] Show top 5 tracks
@@ -120,6 +130,7 @@ Documentation:
 ## 🛠️ Tech Stack (Confirmed)
 
 ### Backend ✅ COMPLETE
+
 - **Framework**: FastAPI 0.115.5 ✅
 - **Server**: Uvicorn 0.32.1 ✅
 - **Spotify Client**: Spotipy 2.24.0 ✅
@@ -132,6 +143,7 @@ Documentation:
 - **Documentation**: Interactive Swagger docs ✅
 
 ### Frontend
+
 - **Framework**: Next.js 16.0.6 (App Router)
 - **UI**: React 19.2.0
 - **Styling**: Tailwind CSS 4.1.17
@@ -144,11 +156,13 @@ Documentation:
 ## 🚀 How to Run
 
 ### Prerequisites Installed?
+
 - ✅ Python 3.9+
 - ✅ uv (Python package manager)
 - ✅ Bun (JavaScript runtime)
 
 ### Quick Start
+
 ```bash
 # One-time setup
 make setup
@@ -162,6 +176,7 @@ make frontend   # Terminal 2
 ```
 
 ### Verify Installation
+
 ```bash
 # Backend: http://localhost:8000
 curl http://localhost:8000
@@ -177,6 +192,7 @@ curl http://localhost:8000
 ## 📊 Progress Breakdown
 
 ### Overall Progress: ~70%
+
 ```
 Phase 1: Foundation (MVP)              [██████████████░░░░░░] 70%
   ├─ 1.1 Project Setup                 [████████████████████] 100% ✅
@@ -199,6 +215,7 @@ Phase 5: Deployment                   [░░░░░░░░░░░░░�
 ## 🎯 Immediate Action Items
 
 1. **USER ACTION REQUIRED** ⚠️: Set up Spotify Developer App
+
    - Follow steps in GETTING_STARTED.md
    - Add credentials to `backend/.env`
    - **This is the ONLY blocker before testing the backend!**
@@ -273,9 +290,10 @@ None! Backend fully functional and tested. 🎉
 
 ## 🎊 Major Achievement Unlocked!
 
-**Backend is COMPLETE and PRODUCTION-READY!** 
+**Backend is COMPLETE and PRODUCTION-READY!**
 
 ### What We Built Today:
+
 - ✅ 15+ REST API endpoints
 - ✅ Full OAuth 2.0 authentication
 - ✅ Secure session management
@@ -285,6 +303,7 @@ None! Backend fully functional and tested. 🎉
 - ✅ ~1500+ lines of clean, tested code
 
 ### What You Can Do Right Now:
+
 1. Add Spotify credentials to `backend/.env`
 2. Run `make backend`
 3. Visit http://localhost:8000/docs

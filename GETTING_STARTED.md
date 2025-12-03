@@ -26,7 +26,7 @@ Before you begin, make sure you have the following installed:
 4. Fill in the details:
    - **App name**: `Early Wrapped` (or any name you like)
    - **App description**: `Personal Spotify statistics viewer`
-   - **Redirect URI**: `http://localhost:8000/auth/callback`
+   - **Redirect URI**: `http://127.0.0.1:8000/auth/callback`
    - **Which API/SDKs are you planning to use?**: Select "Web API"
 5. Agree to the terms and click **"Save"**
 6. On your app page, click **"Settings"**
@@ -46,6 +46,7 @@ make setup
 ```
 
 This will:
+
 - Create `.env` files from templates
 - Install all backend dependencies with uv
 - Install all frontend dependencies with bun
@@ -76,7 +77,7 @@ Open `backend/.env` and add your Spotify credentials:
 # Spotify API Credentials
 SPOTIFY_CLIENT_ID=your_client_id_from_step_1
 SPOTIFY_CLIENT_SECRET=your_client_secret_from_step_1
-SPOTIFY_REDIRECT_URI=http://localhost:8000/auth/callback
+SPOTIFY_REDIRECT_URI=http://127.0.0.1:8000/auth/callback
 
 # Application Security (generate a random string for production)
 SECRET_KEY=your_secret_key_here_change_in_production
@@ -113,6 +114,7 @@ make dev
 ```
 
 This will start both the backend and frontend in a split tmux session.
+
 - Left pane: Backend (http://localhost:8000)
 - Right pane: Frontend (http://localhost:3000)
 
@@ -121,6 +123,7 @@ To exit tmux: Press `Ctrl+B` then `D` (detach)
 ### Option B: Run Servers Separately
 
 **Terminal 1 - Backend:**
+
 ```bash
 make backend
 # or
@@ -128,6 +131,7 @@ cd backend && source .venv/bin/activate && uvicorn app.main:app --reload
 ```
 
 **Terminal 2 - Frontend:**
+
 ```bash
 make frontend
 # or
@@ -137,9 +141,11 @@ cd frontend && bun dev
 ## ✅ Step 5: Verify Everything Works
 
 1. **Check Backend**: Open http://localhost:8000
+
    - You should see: `{"message": "Welcome to Early Wrapped API", "status": "healthy", "version": "1.0.0"}`
 
 2. **Check API Docs**: Open http://localhost:8000/docs
+
    - You should see the FastAPI interactive documentation
 
 3. **Check Frontend**: Open http://localhost:3000
@@ -174,25 +180,30 @@ cd frontend && bun dev                    # Run frontend
 ### Backend won't start
 
 **Error: "No module named 'app'"**
+
 - Make sure you're in the `backend` directory
 - Make sure the virtual environment is activated: `source .venv/bin/activate`
 
 **Error: "Could not load settings"**
+
 - Check that `backend/.env` exists and has valid values
 - Verify your Spotify credentials are correct
 
 ### Frontend won't start
 
 **Error: "Command not found: bun"**
+
 - Install Bun: `curl -fsSL https://bun.sh/install | bash`
 - Restart your terminal after installation
 
 **Error: "Cannot find module"**
+
 - Run `bun install` in the frontend directory
 
 ### Port already in use
 
 **Backend (8000) or Frontend (3000) port busy:**
+
 ```bash
 # Find what's using the port
 lsof -i :8000  # or :3000
@@ -203,13 +214,14 @@ kill -9 <PID>
 
 ### Spotify Authentication Issues
 
-- Verify redirect URI in Spotify Dashboard matches: `http://localhost:8000/auth/callback`
+- Verify redirect URI in Spotify Dashboard matches: `http://127.0.0.1:8000/auth/callback`
 - Check that Client ID and Secret are correct in `backend/.env`
 - Make sure there are no extra spaces in the .env file
 
 ## 📖 Next Steps
 
 Now that everything is running, check out:
+
 - [ROADMAP.md](./ROADMAP.md) - See what features we're building
 - [README.md](./README.md) - Full project documentation
 - Backend API docs: http://localhost:8000/docs

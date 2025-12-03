@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Early Wrapped - Test Login</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, Cantarell, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        background: linear-gradient(135deg, #1db954 0%, #191414 100%);
+        color: white;
+      }
+      .container {
+        text-align: center;
+        padding: 2rem;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+      }
+      h1 {
+        margin-bottom: 0.5rem;
+        font-size: 2.5rem;
+      }
+      p {
+        margin-bottom: 2rem;
+        opacity: 0.9;
+      }
+      .btn {
+        display: inline-block;
+        padding: 1rem 2rem;
+        background: #1db954;
+        color: white;
+        text-decoration: none;
+        border-radius: 500px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+      }
+      .btn:hover {
+        background: #1ed760;
+        transform: scale(1.05);
+      }
+      .info {
+        margin-top: 2rem;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        font-size: 0.9rem;
+      }
+      .status {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: 8px;
+        display: none;
+      }
+      .status.show {
+        display: block;
+      }
+      .status.success {
+        background: rgba(29, 185, 84, 0.3);
+      }
+      .status.error {
+        background: rgba(255, 0, 0, 0.3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎵 Early Wrapped</h1>
+      <p>Your Spotify stats, anytime you want them!</p>
+
+      <a href="http://127.0.0.1:8000/auth/login" class="btn" id="loginBtn">
+        Login with Spotify
+      </a>
+
+      <div class="info">
+        <p><strong>Test OAuth Flow</strong></p>
+        <p>Click the button above to test the Spotify authentication.</p>
+        <p>After login, you'll be redirected back to verify the auth works.</p>
+      </div>
+
+      <div id="status" class="status"></div>
+
+      <div class="info" style="margin-top: 2rem">
+        <p><strong>Auth Status</strong></p>
+        <button
+          class="btn"
+          onclick="checkAuth()"
+          style="font-size: 0.9rem; padding: 0.5rem 1rem"
+        >
+          Check if Authenticated
+        </button>
+        <div id="authStatus" style="margin-top: 1rem"></div>
+      </div>
+    </div>
+
+    <script>
+      // Check URL for success/error from callback
+      const urlParams = new URLSearchParams(window.location.search);
+      const authSuccess = urlParams.get("success");
+      const authError = urlParams.get("error");
+
+      if (authSuccess) {
+        showStatus("✅ Successfully authenticated with Spotify!", "success");
+      } else if (authError) {
+        showStatus("❌ Authentication failed: " + authError, "error");
+      }
+
+      function showStatus(message, type) {
+        const statusDiv = document.getElementById("status");
+        statusDiv.textContent = message;
+        statusDiv.className = "status show " + type;
+      }
+
+      async function checkAuth() {
+        const statusDiv = document.getElementById("authStatus");
+        statusDiv.textContent = "Checking...";
+
+        try {
+          const response = await fetch("http://127.0.0.1:8000/auth/check", {
+            credentials: "include", // Important: include cookies
+          });
+          const data = await response.json();
+
+          if (data.authenticated) {
+            statusDiv.innerHTML =
+              '<p style="color: #1DB954;">✅ Authenticated</p>';
+            // Try to get user profile
+            getUserProfile();
+          } else {
+            statusDiv.innerHTML =
+              '<p style="color: #ff6b6b;">❌ Not authenticated</p>';
+          }
+        } catch (error) {
+          statusDiv.innerHTML =
+            '<p style="color: #ff6b6b;">Error: ' + error.message + "</p>";
+        }
+      }
+
+      async function getUserProfile() {
+        try {
+          const response = await fetch("http://127.0.0.1:8000/auth/me", {
+            credentials: "include",
+          });
+
+          if (response.ok) {
+            const user = await response.json();
+            const authDiv = document.getElementById("authStatus");
+            authDiv.innerHTML += `
+                        <div style="margin-top: 1rem; text-align: left;">
+                            <p><strong>User:</strong> ${
+                              user.display_name || user.id
+                            }</p>
+                            <p><strong>Email:</strong> ${
+                              user.email || "N/A"
+                            }</p>
+                            <p><strong>Country:</strong> ${
+                              user.country || "N/A"
+                            }</p>
+                        </div>
+                    `;
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        }
+      }
+    </script>
+  </body>
+</html>

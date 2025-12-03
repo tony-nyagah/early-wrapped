@@ -26,7 +26,7 @@ router = APIRouter()
 
 
 @router.get("/login")
-async def login(response: Response):
+async def login():
     """
     Initiate Spotify OAuth flow
 
@@ -36,20 +36,23 @@ async def login(response: Response):
         # Generate a random state for CSRF protection
         state = secrets.token_urlsafe(16)
 
-        # Store state in cookie for verification in callback
-        response.set_cookie(
+        # Get authorization URL from Spotify
+        auth_url = SpotifyService.get_authorization_url(state)
+
+        logger.info(f"Redirecting user to Spotify authorization with state: {state[:10]}...")
+
+        # Create redirect response with the state cookie
+        redirect = RedirectResponse(url=auth_url, status_code=307)
+        redirect.set_cookie(
             key="spotify_auth_state",
             value=state,
             httponly=True,
             max_age=600,  # 10 minutes
             samesite="lax",
+            path="/",
         )
 
-        # Get authorization URL from Spotify
-        auth_url = SpotifyService.get_authorization_url(state)
-
-        logger.info("Redirecting user to Spotify authorization")
-        return RedirectResponse(url=auth_url)
+        return redirect
 
     except Exception as e:
         logger.error(f"Error initiating login: {e}")
@@ -81,8 +84,13 @@ async def callback(
     try:
         # Verify state parameter for CSRF protection
         stored_state = request.cookies.get("spotify_auth_state")
+        logger.info(
+            f"Callback received - State from URL: {state[:10] if state else 'None'}..., State from cookie: {stored_state[:10] if stored_state else 'None'}..."
+        )
+        logger.info(f"All cookies: {list(request.cookies.keys())}")
+
         if not stored_state or stored_state != state:
-            logger.error("State mismatch - possible CSRF attack")
+            logger.error(f"State mismatch - Stored: {stored_state}, Received: {state}")
             raise HTTPException(status_code=400, detail="Invalid state parameter")
 
         # Exchange authorization code for access token
@@ -96,18 +104,20 @@ async def callback(
         spotify_service = SpotifyService(access_token=token_info["access_token"])
         user_data = spotify_service.get_current_user()
 
-        # Create response with redirect to frontend
-        frontend_url = settings.cors_origins[0]
-        response = RedirectResponse(url=f"{frontend_url}/auth/success")
+        # Redirect to frontend callback page (use 127.0.0.1 to match cookie domain)
+        response = RedirectResponse(url="http://127.0.0.1:3000/auth/callback")
 
         # Store tokens in httponly cookies for security
+        # Set domain to 127.0.0.1 so cookies work across ports
         response.set_cookie(
             key="spotify_access_token",
             value=token_info["access_token"],
             httponly=True,
             max_age=token_info.get("expires_in", 3600),
             samesite="lax",
-            secure=not settings.debug,  # Use secure cookies in production
+            secure=not settings.debug,
+            domain="127.0.0.1",  # Share cookies across ports
+            path="/",
         )
 
         response.set_cookie(
@@ -117,6 +127,8 @@ async def callback(
             max_age=60 * 60 * 24 * 30,  # 30 days
             samesite="lax",
             secure=not settings.debug,
+            domain="127.0.0.1",
+            path="/",
         )
 
         # Store user info in a separate cookie (not httponly so frontend can read it)
@@ -126,6 +138,8 @@ async def callback(
             max_age=60 * 60 * 24 * 30,  # 30 days
             samesite="lax",
             secure=not settings.debug,
+            domain="127.0.0.1",
+            path="/",
         )
 
         # Clear the state cookie
