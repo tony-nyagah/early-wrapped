@@ -192,7 +192,7 @@ MIT License - feel free to use this for your own learning!
 
 ## 📫 Contact
 
-Built with ❤️ by [Your Name]
+Built with ❤️ by Antony Nyagah.
 
 ---
 
